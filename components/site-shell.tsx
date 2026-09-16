@@ -1,0 +1,12 @@
+'use client';
+import Link from 'next/link';
+import {useEffect,useState} from 'react';
+import {languages,Lang,t} from '@/lib/i18n';
+
+export function SiteShell({children}:{children:React.ReactNode}){
+ const [lang,setLang]=useState<Lang>('en'); const [dark,setDark]=useState(false); const [open,setOpen]=useState(false);
+ useEffect(()=>{const l=(localStorage.getItem('mavera-lang')||'en') as Lang; const d=localStorage.getItem('mavera-theme')==='dark'; setLang(l);setDark(d);},[]);
+ useEffect(()=>{document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';document.documentElement.dataset.theme=dark?'dark':'light';localStorage.setItem('mavera-lang',lang);localStorage.setItem('mavera-theme',dark?'dark':'light')},[lang,dark]);
+ const c=t[lang]; const links=['/','/about','/companies','/coffee-house','/partnerships','/contact'];
+ return <div className="site"><header className="header"><Link href="/" className="brand" onClick={()=>setOpen(false)}><span className="brand-mark">M</span><span>MAVERA<small>BUSINESS GROUP</small></span></Link><nav className={open?'nav nav-open':'nav'}>{c.nav.map((x,i)=><Link key={x} href={links[i]} onClick={()=>setOpen(false)}>{x}</Link>)}<div className="nav-tools"><div className="language"><button className="tool" onClick={()=>setOpen(!open)} aria-label="Language">{lang.toUpperCase()}⌄</button><div className="language-menu">{languages.map(l=><button key={l.code} className={l.code===lang?'selected':''} onClick={()=>{setLang(l.code);setOpen(false)}}>{l.native}<span>{l.label}</span></button>)}</div></div><button className="theme" aria-label="Toggle day and night mode" onClick={()=>setDark(!dark)}><span>{dark?'☀':'☾'}</span><small>{dark?c.themeLight:c.themeDark}</small></button></div></nav><button className="mobile-toggle" aria-label="Open navigation" onClick={()=>setOpen(!open)}><i/><i/><i/></button></header><main>{children}</main><footer className="footer"><div><div className="brand footer-brand"><span className="brand-mark">M</span><span>MAVERA<small>BUSINESS GROUP</small></span></div><p>{c.footer}</p></div><div className="footer-links">{c.nav.slice(0,5).map((x,i)=><Link key={x} href={links[i]}>{x}</Link>)}</div><div className="footer-bottom"><span>© {new Date().getFullYear()} Mavera Business Group</span><span>{c.rights}</span></div></footer></div>
+}
